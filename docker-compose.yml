@@ -7,11 +7,11 @@ services:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-  web:
+  api:
     build: .
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
-      - .:/code
+      - .:/api
     ports:
       - "8000:8000"
     environment:
@@ -20,3 +20,21 @@ services:
       - POSTGRES_PASSWORD=postgres
     depends_on:
       - db
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - ./data/redis_data:/data 
+  celery:
+    build: .
+    command: celery -A api worker -l info
+    volumes:
+      - ./data/celery_data:/data
+    depends_on:
+      - redis
+  celery-beat:
+    build: .
+    command: celery -A api beat -l info
+    volumes:
+      - ./data/celery_data:/data
+    depends_on:
+      - redis
