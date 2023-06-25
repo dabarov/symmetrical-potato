@@ -25,6 +25,7 @@ services:
     volumes:
       - ./data/redis_data:/data 
   celery:
+    restart: always
     build: .
     command: celery -A api worker -l info
     volumes:
@@ -32,6 +33,7 @@ services:
     depends_on:
       - redis
   celery-beat:
+    restart: always
     build: .
     command: celery -A api beat -l info
     volumes:
